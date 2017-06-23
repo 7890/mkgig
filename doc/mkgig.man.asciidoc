@@ -1,0 +1,57 @@
+mkgig(1)
+========
+:doctype: manpage
+
+NAME
+----
+mkgig - Make a .gig file from a sample to be used with LinuxSampler
+
+SYNOPSIS
+--------
+*mkgig* {WAVEFILE} {GIGFILE}
+
+DESCRIPTION
+-----------
+mkgig takes a wave file as input and creates a very basic .gig file containing 
+one instrument. This file can be loaded into LinuxSampler.
+libsndfile is used to load the wave files. libgig is used to create the .gig files.
+
+OPTIONS
+-------
+*WAVEFILE*::
+	Filename of the audio input file
+
+*GIGFILE*::
+	The resulting .gig filename
+
+EXIT STATUS
+-----------
+*0*::
+	Success
+
+*1*::
+	Error
+
+EXAMPLES
+--------
+
+Create flute.gig::
+	$ mkgig flute.wav flute.gig
+
+AUTHOR
+------
+mkgig was written by Thomas Brand <tom@trellis.ch>
+
+BUGS
+----
+Please report bugs to <https://github.com/7890/mkgig>
+
+SEE ALSO
+--------
+*gigdump(1)*, *gigmerge(1)*, *gig2mono(1)*, *gig2stereo(1)*, *gigedit(1)*
+
+////
+example asciidoc manpage
+http://www.methods.co.nz/asciidoc/manpage.txt
+a2x --doctype manpage --format manpage sk.man.asciidoc
+////
