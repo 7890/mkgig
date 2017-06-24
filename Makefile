@@ -1,13 +1,15 @@
 CC = g++
 CFLAGS ?= -O3
 
+PREFIX ?= /usr/local
+INSTALLDIR ?= $(PREFIX)/bin
+MANDIR ?= $(PREFIX)/share/man/man1
+
+#DESTDIR ?= 
+
 SRC = src
 DOC = doc
 BUILD = build
-
-PREFIX = /usr/local
-INSTALLDIR = $(PREFIX)/bin
-MANDIR = $(PREFIX)/share/man/man1
 
 $(shell mkdir -p $(BUILD))
 
@@ -19,7 +21,6 @@ mkgig: $(SRC)/mkgig.cpp
 	@echo "checking prerequisites..."
 	which $(CC)
 	which pkg-config
-
 	pkg-config --exists gig
 	pkg-config --exists sndfile
 	@echo "ok."
@@ -34,7 +35,6 @@ manpage:
 	&& which gzip \
 	&& which dblatex
 	@echo "ok."
-
 	@echo ""
 	@echo "creating manpage with asciidoc"
 	@echo "------------------------------"
@@ -59,6 +59,8 @@ manpage:
 	@echo ""
 
 install:
+	$(shell mkdir -p $(DESTDIR)$(INSTALLDIR))
+	$(shell mkdir -p $(DESTDIR)$(MANDIR))
 	install -m755 mkgig $(DESTDIR)$(INSTALLDIR)/
 	install -m644 $(DOC)/mkgig.1.gz $(DESTDIR)$(MANDIR)/
 
