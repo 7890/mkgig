@@ -24,32 +24,35 @@
 //
 //=============================================================================
 
-//g++ -o mkgig mkgig.cpp -g `pkg-config --libs --cflags gig`
+//g++ -o mkgig mkgig.cpp -g `pkg-config --libs --cflags gig sndfile`
 //tb/1706+
 
 #include <sndfile.h>
 #include <gig.h>
-
-SF_INFO sndfile_info;
-SNDFILE* sndfile;
-gig::Sample *pSample;
-
-int target_bitdepth; //evaluated
 
 char *wave_filename; //argument
 char *gig_filename; //argument
 
 const int wave_read_bufsize = 10000; //bytes
 
+int target_bitdepth; //evaluated
+
+SF_INFO sndfile_info;
+SNDFILE* sndfile;
+gig::Sample *pSample;
+
 void read_snd_meta_data();
 void write_sample_data();
 
 using namespace std;
 
+string getBasenameFromPath (const string& str);
+string getFilenameFromPath (const string& str);
+
 //=============================================================================
 int main(int argc, char *argv[])
 {
-	if(argc<3)
+	if(argc!=3)
 	{
 		cerr << "error: need arguments: <wave file (input)> <gig file (output)>" << endl;
 		return 1;
@@ -67,18 +70,21 @@ int main(int argc, char *argv[])
 
 		//create instrument
 		gig::Instrument* pInstrument = file.AddInstrument();
-		pInstrument->pInfo->Name = "Single Sample Instrument";
-	
+//		pInstrument->pInfo->Name = "Single Sample Instrument";
+		pInstrument->pInfo->Name = getFilenameFromPath(wave_filename);
+
 		DLS::range_t keyRange, velocityRange;
 		keyRange.low = 0;
 		keyRange.high = 127;
 		velocityRange.low = 0;
-		velocityRange.high = 63;
-	
+		velocityRange.high = 127;
+
 		//create sample
 		pSample = file.AddSample();
-		pSample->pInfo->Name = "Anonymous Sample";
-	
+//		pSample->pInfo->Name = "Anonymous Sample";
+		pSample->pInfo->Name = getFilenameFromPath(wave_filename); //! needs encoding/codepage handling 
+		///#define GIG_STR_ENCODING "CP1252"
+
 		//set sample metadata
 		pSample->Channels = sndfile_info.channels;
 		pSample->BitDepth = target_bitdepth;
@@ -96,8 +102,8 @@ int main(int argc, char *argv[])
 		pRegion->SetSample(pSample);
 		pRegion->KeyRange = keyRange;
 		pRegion->VelocityRange = velocityRange;
-		//pRegion->UnityNote = count;
-		pRegion->SampleLoops = 0;
+		//pRegion->UnityNote = 0;
+		//pRegion->SampleLoops = 0;
 		pRegion->pDimensionRegions[0]->pSample = pSample;
 
 		//before writing sample data, we need to call file.Save()
@@ -112,7 +118,7 @@ int main(int argc, char *argv[])
 		e.PrintMessage();
 		return 1;
 	}
-	catch (std::string e)
+	catch (string e)
 	{
 		cerr << "error: " << e << endl;
 		return 1;
@@ -202,5 +208,22 @@ void write_sample_data()
 	// cleanup
 	sf_close(sndfile);
 } //write_sample_data()
+
+//https://stackoverflow.com/questions/8520560/get-a-file-name-from-a-path
+//std::string str1 ("/usr/bin/man");
+//std::string str2 ("c:\\windows\\winhelp.exe");
+//=============================================================================
+string getBasenameFromPath (const string& str)
+{
+	unsigned found = str.find_last_of("/\\");
+	return str.substr(0,found);
+}
+
+//=============================================================================
+string getFilenameFromPath (const string& str)
+{
+	unsigned found = str.find_last_of("/\\");
+	return str.substr(found+1);
+}
 
 //EOF
