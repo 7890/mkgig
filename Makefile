@@ -27,6 +27,9 @@ mkgig: $(SRC)/mkgig.cpp
 
 	$(CC) -o mkgig $(SRC)/mkgig.cpp $(CFLAGS) `pkg-config --cflags --libs gig sndfile`
 
+	#if the mkgig binary can't find libgig.so for any reason, set LD_RUN_PATH in shell, make clean && make
+	#export LD_RUN_PATH=/usr/local/lib/libgig
+
 manpage:
 	@echo "checking prerequisites..."
 	which asciidoc \
@@ -62,10 +65,12 @@ install:
 	$(shell mkdir -p $(DESTDIR)$(INSTALLDIR))
 	$(shell mkdir -p $(DESTDIR)$(MANDIR))
 	install -m755 mkgig $(DESTDIR)$(INSTALLDIR)/
+	install -m755 $(SRC)/gigload.sh $(DESTDIR)$(INSTALLDIR)/gigload
 	install -m644 $(DOC)/mkgig.1.gz $(DESTDIR)$(MANDIR)/
 
 uninstall:
 	-rm -f $(DESTDIR)$(INSTALLDIR)/mkgig
+	-rm -f $(DESTDIR)$(INSTALLDIR)/gigload
 	-rm -f $(DESTDIR)$(MANDIR)/mkgig.1.gz
 
 clean:
