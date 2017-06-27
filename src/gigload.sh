@@ -25,7 +25,7 @@ checkAvail()
 	fi
 }
 
-for tool in {gigdump,netcat,dos2unix,unix2dos,jack_lsp,jack_disconnect}; \
+for tool in {gigdump,netcat,dos2unix,unix2dos,jack_lsp,jack_disconnect,xterm,linuxsampler}; \
 	do checkAvail "$tool"; done
 
 if [ $# -lt 1 ]
@@ -90,7 +90,11 @@ ret=$?
 if [ $ret -ne 0 ]
 then
 	echo "no LinuxSampler found on $LS_HOST:$LS_PORT" >&2
-	exit 1
+#	exit 1
+#	experimental: autostarting LinuxSampler in xterm
+	echo "=== AUTOSTARTING LinuxSampler ========="
+	xterm -e "linuxsampler --lscp-port $LS_PORT" &
+	sleep 1
 fi
 
 #regular file
